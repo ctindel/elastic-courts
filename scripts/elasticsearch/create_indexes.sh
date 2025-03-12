@@ -32,6 +32,16 @@ create_index() {
 update_index_mapping_for_vectors() {
     local index_name=$1
     
+    echo "Checking if index: $index_name already has vector fields"
+    
+    # Check if the index already has vector_embedding field
+    local has_vector_field=$(curl -s -X GET "${ES_HOST}/${index_name}/_mapping" | grep -c "vector_embedding")
+    
+    if [ "$has_vector_field" -gt 0 ]; then
+        echo "Index ${index_name} already has vector fields. Skipping update."
+        return 0
+    fi
+    
     echo "Updating mapping for index: $index_name to support vector fields"
     
     # Update the mapping to add fields for vectorization

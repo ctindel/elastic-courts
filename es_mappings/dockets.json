@@ -5,7 +5,15 @@
       "case_name": { "type": "text" },
       "docket_number": { "type": "keyword" },
       "court_id": { "type": "keyword" },
-      "date_filed": { "type": "date" }
+      "date_filed": { "type": "date" },
+      "text_for_vectorization": { "type": "text" },
+      "vectorize": { "type": "boolean" },
+      "vector_embedding": {
+        "type": "dense_vector",
+        "dims": 4096,
+        "index": true,
+        "similarity": "cosine"
+      }
     }
   }
 }

@@ -3,7 +3,25 @@
     "properties": {
       "id": { "type": "keyword" },
       "case_name": { "type": "text" },
-      "plain_text": { "type": "text" }
+      "plain_text": { "type": "text" },
+      "text_for_vectorization": { "type": "text" },
+      "vectorize": { "type": "boolean" },
+      "chunks": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "chunk_count": { "type": "integer" },
+      "vector_embedding": {
+        "type": "dense_vector",
+        "dims": 4096,
+        "index": true,
+        "similarity": "cosine"
+      }
     }
   }
 }

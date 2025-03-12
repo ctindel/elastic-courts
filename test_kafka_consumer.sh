@@ -64,46 +64,8 @@ fi
 echo "Creating Elasticsearch indexes..."
 mkdir -p es_mappings
 
-# Create basic mappings for test indexes
-echo "Creating basic mappings for test indexes..."
-cat > es_mappings/opinions.json << EOF
-{
-  "mappings": {
-    "properties": {
-      "id": { "type": "keyword" },
-      "case_name": { "type": "text" },
-      "plain_text": { "type": "text" }
-    }
-  }
-}
-EOF
-
-cat > es_mappings/dockets.json << EOF
-{
-  "mappings": {
-    "properties": {
-      "id": { "type": "keyword" },
-      "case_name": { "type": "text" },
-      "docket_number": { "type": "keyword" },
-      "court_id": { "type": "keyword" },
-      "date_filed": { "type": "date" }
-    }
-  }
-}
-EOF
-
-cat > es_mappings/courts.json << EOF
-{
-  "mappings": {
-    "properties": {
-      "id": { "type": "keyword" },
-      "full_name": { "type": "text" },
-      "citation_string": { "type": "keyword" },
-      "url": { "type": "keyword" }
-    }
-  }
-}
-EOF
+# Use existing mapping files for test indexes
+echo "Using existing mapping files for test indexes..."
 
 # Create indexes directly for testing
 echo "Creating test indexes directly..."
