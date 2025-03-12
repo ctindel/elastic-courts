@@ -1,0 +1,132 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "date_created": {
+        "type": "date"
+      },
+      "date_modified": {
+        "type": "date"
+      },
+      "judges": {
+        "type": "keyword"
+      },
+      "date_filed": {
+        "type": "date"
+      },
+      "date_filed_is_approximate": {
+        "type": "date"
+      },
+      "slug": {
+        "type": "keyword"
+      },
+      "case_name_short": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "case_name": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "case_name_full": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "scdb_id": {
+        "type": "keyword"
+      },
+      "scdb_decision_direction": {
+        "type": "keyword"
+      },
+      "scdb_votes_majority": {
+        "type": "keyword"
+      },
+      "scdb_votes_minority": {
+        "type": "keyword"
+      },
+      "source": {
+        "type": "keyword"
+      },
+      "procedural_history": {
+        "type": "keyword"
+      },
+      "attorneys": {
+        "type": "keyword"
+      },
+      "nature_of_suit": {
+        "type": "keyword"
+      },
+      "posture": {
+        "type": "keyword"
+      },
+      "syllabus": {
+        "type": "keyword"
+      },
+      "headnotes": {
+        "type": "keyword"
+      },
+      "summary": {
+        "type": "keyword"
+      },
+      "disposition": {
+        "type": "keyword"
+      },
+      "history": {
+        "type": "keyword"
+      },
+      "other_dates": {
+        "type": "date"
+      },
+      "cross_reference": {
+        "type": "keyword"
+      },
+      "correction": {
+        "type": "keyword"
+      },
+      "citation_count": {
+        "type": "integer"
+      },
+      "precedential_status": {
+        "type": "keyword"
+      },
+      "date_blocked": {
+        "type": "date"
+      },
+      "blocked": {
+        "type": "keyword"
+      },
+      "filepath_json_harvard": {
+        "type": "keyword"
+      },
+      "filepath_pdf_harvard": {
+        "type": "keyword"
+      },
+      "docket_id": {
+        "type": "keyword"
+      },
+      "arguments": {
+        "type": "keyword"
+      },
+      "headmatter": {
+        "type": "keyword"
+      }
+    }
+  }
+}

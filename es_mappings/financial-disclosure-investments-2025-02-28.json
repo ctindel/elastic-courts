@@ -1,0 +1,66 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "date_created": {
+        "type": "date"
+      },
+      "date_modified": {
+        "type": "date"
+      },
+      "page_number": {
+        "type": "integer"
+      },
+      "description": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "redacted": {
+        "type": "keyword"
+      },
+      "income_during_reporting_period_code": {
+        "type": "keyword"
+      },
+      "income_during_reporting_period_type": {
+        "type": "keyword"
+      },
+      "gross_value_code": {
+        "type": "keyword"
+      },
+      "gross_value_method": {
+        "type": "keyword"
+      },
+      "transaction_during_reporting_period": {
+        "type": "keyword"
+      },
+      "transaction_date_raw": {
+        "type": "date"
+      },
+      "transaction_date": {
+        "type": "date"
+      },
+      "transaction_value_code": {
+        "type": "keyword"
+      },
+      "transaction_gain_code": {
+        "type": "keyword"
+      },
+      "transaction_partner": {
+        "type": "keyword"
+      },
+      "has_inferred_values": {
+        "type": "keyword"
+      },
+      "financial_disclosure_id": {
+        "type": "keyword"
+      }
+    }
+  }
+}

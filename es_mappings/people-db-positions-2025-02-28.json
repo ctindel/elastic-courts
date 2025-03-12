@@ -1,0 +1,126 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "date_created": {
+        "type": "date"
+      },
+      "date_modified": {
+        "type": "date"
+      },
+      "position_type": {
+        "type": "keyword"
+      },
+      "job_title": {
+        "type": "keyword"
+      },
+      "sector": {
+        "type": "keyword"
+      },
+      "organization_name": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "location_city": {
+        "type": "keyword"
+      },
+      "location_state": {
+        "type": "keyword"
+      },
+      "date_nominated": {
+        "type": "date"
+      },
+      "date_elected": {
+        "type": "date"
+      },
+      "date_recess_appointment": {
+        "type": "date"
+      },
+      "date_referred_to_judicial_committee": {
+        "type": "date"
+      },
+      "date_judicial_committee_action": {
+        "type": "date"
+      },
+      "judicial_committee_action": {
+        "type": "keyword"
+      },
+      "date_hearing": {
+        "type": "date"
+      },
+      "date_confirmation": {
+        "type": "date"
+      },
+      "date_start": {
+        "type": "date"
+      },
+      "date_granularity_start": {
+        "type": "date"
+      },
+      "date_termination": {
+        "type": "date"
+      },
+      "termination_reason": {
+        "type": "keyword"
+      },
+      "date_granularity_termination": {
+        "type": "date"
+      },
+      "date_retirement": {
+        "type": "date"
+      },
+      "nomination_process": {
+        "type": "keyword"
+      },
+      "vote_type": {
+        "type": "keyword"
+      },
+      "voice_vote": {
+        "type": "keyword"
+      },
+      "votes_yes": {
+        "type": "keyword"
+      },
+      "votes_no": {
+        "type": "keyword"
+      },
+      "votes_yes_percent": {
+        "type": "keyword"
+      },
+      "votes_no_percent": {
+        "type": "keyword"
+      },
+      "how_selected": {
+        "type": "keyword"
+      },
+      "has_inferred_values": {
+        "type": "keyword"
+      },
+      "appointer_id": {
+        "type": "keyword"
+      },
+      "court_id": {
+        "type": "keyword"
+      },
+      "person_id": {
+        "type": "keyword"
+      },
+      "predecessor_id": {
+        "type": "keyword"
+      },
+      "school_id": {
+        "type": "keyword"
+      },
+      "supervisor_id": {
+        "type": "keyword"
+      }
+    }
+  }
+}

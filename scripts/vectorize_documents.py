@@ -38,12 +38,15 @@ def get_embedding(text):
     """Get embedding from Ollama"""
     payload = {
         "model": "llama3",
-        "prompt": text
+        "prompt": text,
+        "options": {
+            "embedding": True
+        }
     }
     
     try:
         response = requests.post(
-            "http://localhost:11434/api/embeddings",
+            "http://localhost:11434/api/generate",
             json=payload,
             headers={"Content-Type": "application/json"}
         )
@@ -94,7 +97,7 @@ def process_documents():
         for doc in docs:
             doc_id = doc["_id"]
             source = doc["_source"]
-            text = source.get("text_for_vectorization", source.get("full_name", ""))
+            text = source.get("text_for_vectorization", "")
             
             if not text:
                 print(f"No text to vectorize for document {doc_id}")
@@ -131,7 +134,7 @@ def mark_documents_for_vectorization():
     }
     
     response = requests.post(
-        "http://localhost:9200/courts/_update_by_query?pipeline=courts-vectorize",
+        "http://localhost:9200/courts/_update_by_query?pipeline=court-vectorization",
         json=query,
         headers={"Content-Type": "application/json"}
     )
@@ -141,7 +144,7 @@ def mark_documents_for_vectorization():
         return False
     
     data = response.json()
-    print(f"Marked {data.get('updated', 0)} documents for vectorization")
+    print(f"Marked {data.get(updated, 0)} documents for vectorization")
     return True
 
 if __name__ == "__main__":

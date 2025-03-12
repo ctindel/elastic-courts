@@ -1,0 +1,45 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "court_seat": {
+        "type": "keyword"
+      },
+      "building_name": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "address1": {
+        "type": "keyword"
+      },
+      "address2": {
+        "type": "keyword"
+      },
+      "city": {
+        "type": "keyword"
+      },
+      "county": {
+        "type": "integer"
+      },
+      "state": {
+        "type": "keyword"
+      },
+      "zip_code": {
+        "type": "keyword"
+      },
+      "country_code": {
+        "type": "integer"
+      },
+      "court_id": {
+        "type": "keyword"
+      }
+    }
+  }
+}

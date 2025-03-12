@@ -1,0 +1,180 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "date_created": {
+        "type": "date"
+      },
+      "date_modified": {
+        "type": "date"
+      },
+      "source": {
+        "type": "keyword"
+      },
+      "appeal_from_str": {
+        "type": "keyword"
+      },
+      "assigned_to_str": {
+        "type": "keyword"
+      },
+      "referred_to_str": {
+        "type": "keyword"
+      },
+      "panel_str": {
+        "type": "keyword"
+      },
+      "date_last_index": {
+        "type": "date"
+      },
+      "date_cert_granted": {
+        "type": "date"
+      },
+      "date_cert_denied": {
+        "type": "date"
+      },
+      "date_argued": {
+        "type": "date"
+      },
+      "date_reargued": {
+        "type": "date"
+      },
+      "date_reargument_denied": {
+        "type": "date"
+      },
+      "date_filed": {
+        "type": "date"
+      },
+      "date_terminated": {
+        "type": "date"
+      },
+      "date_last_filing": {
+        "type": "date"
+      },
+      "case_name_short": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "case_name": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "case_name_full": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "slug": {
+        "type": "keyword"
+      },
+      "docket_number": {
+        "type": "integer"
+      },
+      "docket_number_core": {
+        "type": "integer"
+      },
+      "pacer_case_id": {
+        "type": "keyword"
+      },
+      "cause": {
+        "type": "keyword"
+      },
+      "nature_of_suit": {
+        "type": "keyword"
+      },
+      "jury_demand": {
+        "type": "keyword"
+      },
+      "jurisdiction_type": {
+        "type": "keyword"
+      },
+      "appellate_fee_status": {
+        "type": "keyword"
+      },
+      "appellate_case_type_information": {
+        "type": "keyword"
+      },
+      "mdl_status": {
+        "type": "keyword"
+      },
+      "filepath_local": {
+        "type": "keyword"
+      },
+      "filepath_ia": {
+        "type": "keyword"
+      },
+      "filepath_ia_json": {
+        "type": "keyword"
+      },
+      "ia_upload_failure_count": {
+        "type": "integer"
+      },
+      "ia_needs_upload": {
+        "type": "keyword"
+      },
+      "ia_date_first_change": {
+        "type": "date"
+      },
+      "view_count": {
+        "type": "integer"
+      },
+      "date_blocked": {
+        "type": "date"
+      },
+      "blocked": {
+        "type": "keyword"
+      },
+      "appeal_from_id": {
+        "type": "keyword"
+      },
+      "assigned_to_id": {
+        "type": "keyword"
+      },
+      "court_id": {
+        "type": "keyword"
+      },
+      "idb_data_id": {
+        "type": "keyword"
+      },
+      "originating_court_information_id": {
+        "type": "keyword"
+      },
+      "referred_to_id": {
+        "type": "keyword"
+      },
+      "federal_dn_case_type": {
+        "type": "keyword"
+      },
+      "federal_dn_office_code": {
+        "type": "keyword"
+      },
+      "federal_dn_judge_initials_assigned": {
+        "type": "keyword"
+      },
+      "federal_dn_judge_initials_referred": {
+        "type": "keyword"
+      },
+      "federal_defendant_number": {
+        "type": "integer"
+      },
+      "parent_docket_id": {
+        "type": "keyword"
+      }
+    }
+  }
+}

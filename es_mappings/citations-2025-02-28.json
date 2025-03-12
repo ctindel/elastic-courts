@@ -1,0 +1,24 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "volume": {
+        "type": "keyword"
+      },
+      "reporter": {
+        "type": "keyword"
+      },
+      "page": {
+        "type": "keyword"
+      },
+      "type": {
+        "type": "keyword"
+      },
+      "cluster_id": {
+        "type": "keyword"
+      }
+    }
+  }
+}

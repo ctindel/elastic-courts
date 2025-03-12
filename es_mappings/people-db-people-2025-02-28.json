@@ -1,0 +1,102 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "date_created": {
+        "type": "date"
+      },
+      "date_modified": {
+        "type": "date"
+      },
+      "date_completed": {
+        "type": "date"
+      },
+      "fjc_id": {
+        "type": "keyword"
+      },
+      "slug": {
+        "type": "keyword"
+      },
+      "name_first": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "name_middle": {
+        "type": "keyword"
+      },
+      "name_last": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "name_suffix": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "date_dob": {
+        "type": "date"
+      },
+      "date_granularity_dob": {
+        "type": "date"
+      },
+      "date_dod": {
+        "type": "date"
+      },
+      "date_granularity_dod": {
+        "type": "date"
+      },
+      "dob_city": {
+        "type": "keyword"
+      },
+      "dob_state": {
+        "type": "keyword"
+      },
+      "dob_country": {
+        "type": "integer"
+      },
+      "dod_city": {
+        "type": "keyword"
+      },
+      "dod_state": {
+        "type": "keyword"
+      },
+      "dod_country": {
+        "type": "integer"
+      },
+      "gender": {
+        "type": "keyword"
+      },
+      "religion": {
+        "type": "keyword"
+      },
+      "ftm_total_received": {
+        "type": "keyword"
+      },
+      "ftm_eid": {
+        "type": "keyword"
+      },
+      "has_photo": {
+        "type": "keyword"
+      },
+      "is_alias_of_id": {
+        "type": "keyword"
+      }
+    }
+  }
+}

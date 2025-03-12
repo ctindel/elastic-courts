@@ -1,0 +1,15 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "opinion_id": {
+        "type": "keyword"
+      },
+      "person_id": {
+        "type": "keyword"
+      }
+    }
+  }
+}
