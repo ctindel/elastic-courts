@@ -1,0 +1,30 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "opinion_id": {
+        "type": "keyword"
+      },
+      "chunk_index": {
+        "type": "integer"
+      },
+      "text": {
+        "type": "text"
+      },
+      "vector_embedding": {
+        "type": "dense_vector",
+        "dims": 4096,
+        "index": true,
+        "similarity": "cosine"
+      },
+      "vectorized_at": {
+        "type": "date"
+      },
+      "case_name": {
+        "type": "text"
+      }
+    }
+  }
+}
