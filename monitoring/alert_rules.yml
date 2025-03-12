@@ -1,0 +1,97 @@
+groups:
+- name: court_data_alerts
+  rules:
+  # Circuit Breaker Alerts
+  - alert: CircuitBreakerOpen
+    expr: court_data_circuit_breaker_state == 2
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: Circuit Breaker Open
+      description: Circuit breaker for {{ $labels.doc_type }}/{{ $labels.stage }} has been open for 5 minutes
+      value: '{{ $value }}'
+
+  - alert: HighFailureRate
+    expr: court_data_circuit_breaker_failure_rate > 0.25
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: High Failure Rate
+      description: Failure rate for {{ $labels.doc_type }}/{{ $labels.stage }} is above 25%
+      value: '{{ printf "%.2f" $value }}'
+
+  # DLQ Alerts
+  - alert: DLQSizeHigh
+    expr: court_data_dlq_size > 1000
+    for: 10m
+    labels:
+      severity: warning
+    annotations:
+      summary: DLQ Size High
+      description: DLQ size for {{ $labels.doc_type }} is above 1000 messages
+      value: '{{ $value }}'
+
+  - alert: DLQSizeCritical
+    expr: court_data_dlq_size > 5000
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: DLQ Size Critical
+      description: DLQ size for {{ $labels.doc_type }} is above 5000 messages
+      value: '{{ $value }}'
+
+  # Vectorization Latency Alerts
+  - alert: HighVectorizationLatency
+    expr: rate(court_data_vectorization_latency_seconds_sum[5m]) / rate(court_data_vectorization_latency_seconds_count[5m]) > 10
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: High Vectorization Latency
+      description: Average vectorization latency for {{ $labels.doc_type }} is above 10 seconds
+      value: '{{ printf "%.2f" $value }}'
+
+  - alert: CriticalVectorizationLatency
+    expr: rate(court_data_vectorization_latency_seconds_sum[5m]) / rate(court_data_vectorization_latency_seconds_count[5m]) > 30
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: Critical Vectorization Latency
+      description: Average vectorization latency for {{ $labels.doc_type }} is above 30 seconds
+      value: '{{ printf "%.2f" $value }}'
+
+  # Ingestion Rate Alerts
+  - alert: LowIngestionRate
+    expr: rate(court_data_ingestion_total[5m]) < 1
+    for: 10m
+    labels:
+      severity: warning
+    annotations:
+      summary: Low Ingestion Rate
+      description: Ingestion rate for {{ $labels.doc_type }} is below 1 document per second
+      value: '{{ printf "%.2f" $value }}'
+
+  # Elasticsearch Index Health
+  - alert: ElasticsearchIndexYellow
+    expr: elasticsearch_indices_status{color="yellow"} > 0
+    for: 10m
+    labels:
+      severity: warning
+    annotations:
+      summary: Elasticsearch Index Yellow
+      description: Index {{ $labels.index }} is in yellow state
+      value: '{{ $value }}'
+
+  - alert: ElasticsearchIndexRed
+    expr: elasticsearch_indices_status{color="red"} > 0
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: Elasticsearch Index Red
+      description: Index {{ $labels.index }} is in red state
+      value: '{{ $value }}'
