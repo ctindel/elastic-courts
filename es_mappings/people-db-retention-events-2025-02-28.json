@@ -1,0 +1,42 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "date_created": {
+        "type": "date"
+      },
+      "date_modified": {
+        "type": "date"
+      },
+      "retention_type": {
+        "type": "keyword"
+      },
+      "date_retention": {
+        "type": "date"
+      },
+      "votes_yes": {
+        "type": "keyword"
+      },
+      "votes_no": {
+        "type": "keyword"
+      },
+      "votes_yes_percent": {
+        "type": "keyword"
+      },
+      "votes_no_percent": {
+        "type": "keyword"
+      },
+      "unopposed": {
+        "type": "keyword"
+      },
+      "won": {
+        "type": "keyword"
+      },
+      "position_id": {
+        "type": "keyword"
+      }
+    }
+  }
+}

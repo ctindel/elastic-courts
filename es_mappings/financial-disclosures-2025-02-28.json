@@ -1,0 +1,54 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "date_created": {
+        "type": "date"
+      },
+      "date_modified": {
+        "type": "date"
+      },
+      "year": {
+        "type": "keyword"
+      },
+      "download_filepath": {
+        "type": "keyword"
+      },
+      "filepath": {
+        "type": "keyword"
+      },
+      "thumbnail": {
+        "type": "keyword"
+      },
+      "thumbnail_status": {
+        "type": "keyword"
+      },
+      "page_count": {
+        "type": "integer"
+      },
+      "sha1": {
+        "type": "keyword"
+      },
+      "report_type": {
+        "type": "keyword"
+      },
+      "is_amended": {
+        "type": "keyword"
+      },
+      "addendum_content_raw": {
+        "type": "keyword"
+      },
+      "addendum_redacted": {
+        "type": "keyword"
+      },
+      "has_been_extracted": {
+        "type": "keyword"
+      },
+      "person_id": {
+        "type": "keyword"
+      }
+    }
+  }
+}

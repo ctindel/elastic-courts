@@ -1,0 +1,10 @@
+{
+  "mappings": {
+    "properties": {
+      "id": { "type": "keyword" },
+      "full_name": { "type": "text" },
+      "citation_string": { "type": "keyword" },
+      "url": { "type": "keyword" }
+    }
+  }
+}

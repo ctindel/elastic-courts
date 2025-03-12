@@ -1,0 +1,15 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "from_court_id": {
+        "type": "keyword"
+      },
+      "to_court_id": {
+        "type": "keyword"
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "date_created": {
+        "type": "date"
+      },
+      "date_modified": {
+        "type": "date"
+      },
+      "date_raw": {
+        "type": "date"
+      },
+      "parties_and_terms": {
+        "type": "keyword"
+      },
+      "redacted": {
+        "type": "keyword"
+      },
+      "financial_disclosure_id": {
+        "type": "keyword"
+      }
+    }
+  }
+}

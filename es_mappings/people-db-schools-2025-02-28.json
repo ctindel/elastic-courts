@@ -1,0 +1,30 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "date_created": {
+        "type": "date"
+      },
+      "date_modified": {
+        "type": "date"
+      },
+      "name": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "ein": {
+        "type": "keyword"
+      },
+      "is_alias_of_id": {
+        "type": "keyword"
+      }
+    }
+  }
+}

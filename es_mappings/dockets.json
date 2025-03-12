@@ -1,0 +1,11 @@
+{
+  "mappings": {
+    "properties": {
+      "id": { "type": "keyword" },
+      "case_name": { "type": "text" },
+      "docket_number": { "type": "keyword" },
+      "court_id": { "type": "keyword" },
+      "date_filed": { "type": "date" }
+    }
+  }
+}

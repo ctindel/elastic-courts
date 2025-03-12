@@ -1,0 +1,75 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "date_created": {
+        "type": "date"
+      },
+      "date_modified": {
+        "type": "date"
+      },
+      "author_str": {
+        "type": "keyword"
+      },
+      "per_curiam": {
+        "type": "keyword"
+      },
+      "joined_by_str": {
+        "type": "keyword"
+      },
+      "type": {
+        "type": "keyword"
+      },
+      "sha1": {
+        "type": "keyword"
+      },
+      "page_count": {
+        "type": "integer"
+      },
+      "download_url": {
+        "type": "keyword"
+      },
+      "local_path": {
+        "type": "keyword"
+      },
+      "plain_text": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "html": {
+        "type": "keyword"
+      },
+      "html_lawbox": {
+        "type": "keyword"
+      },
+      "html_columbia": {
+        "type": "keyword"
+      },
+      "html_anon_2020": {
+        "type": "keyword"
+      },
+      "xml_harvard": {
+        "type": "keyword"
+      },
+      "html_with_citations": {
+        "type": "keyword"
+      },
+      "extracted_by_ocr": {
+        "type": "keyword"
+      },
+      "author_id": {
+        "type": "keyword"
+      },
+      "cluster_id": {
+        "type": "keyword"
+      }
+    }
+  }
+}

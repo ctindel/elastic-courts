@@ -1,0 +1,78 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "pacer_court_id": {
+        "type": "keyword"
+      },
+      "pacer_has_rss_feed": {
+        "type": "keyword"
+      },
+      "pacer_rss_entry_types": {
+        "type": "keyword"
+      },
+      "date_last_pacer_contact": {
+        "type": "date"
+      },
+      "fjc_court_id": {
+        "type": "keyword"
+      },
+      "date_modified": {
+        "type": "date"
+      },
+      "in_use": {
+        "type": "keyword"
+      },
+      "has_opinion_scraper": {
+        "type": "keyword"
+      },
+      "has_oral_argument_scraper": {
+        "type": "keyword"
+      },
+      "position": {
+        "type": "keyword"
+      },
+      "citation_string": {
+        "type": "keyword"
+      },
+      "short_name": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "full_name": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "url": {
+        "type": "keyword"
+      },
+      "start_date": {
+        "type": "date"
+      },
+      "end_date": {
+        "type": "date"
+      },
+      "jurisdiction": {
+        "type": "keyword"
+      },
+      "notes": {
+        "type": "keyword"
+      },
+      "parent_court_id": {
+        "type": "keyword"
+      }
+    }
+  }
+}

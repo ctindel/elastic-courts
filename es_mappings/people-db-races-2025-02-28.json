@@ -1,0 +1,15 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "person_id": {
+        "type": "keyword"
+      },
+      "race_id": {
+        "type": "keyword"
+      }
+    }
+  }
+}

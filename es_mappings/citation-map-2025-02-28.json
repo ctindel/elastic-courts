@@ -1,0 +1,18 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "depth": {
+        "type": "keyword"
+      },
+      "cited_opinion_id": {
+        "type": "keyword"
+      },
+      "citing_opinion_id": {
+        "type": "keyword"
+      }
+    }
+  }
+}

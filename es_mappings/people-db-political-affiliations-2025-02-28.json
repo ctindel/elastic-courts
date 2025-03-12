@@ -1,0 +1,36 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "date_created": {
+        "type": "date"
+      },
+      "date_modified": {
+        "type": "date"
+      },
+      "political_party": {
+        "type": "keyword"
+      },
+      "source": {
+        "type": "keyword"
+      },
+      "date_start": {
+        "type": "date"
+      },
+      "date_granularity_start": {
+        "type": "date"
+      },
+      "date_end": {
+        "type": "date"
+      },
+      "date_granularity_end": {
+        "type": "date"
+      },
+      "person_id": {
+        "type": "keyword"
+      }
+    }
+  }
+}
