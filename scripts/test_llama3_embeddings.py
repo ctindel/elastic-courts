@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 
-import argparse
 import requests
 import json
 import time
 import sys
 import os
+import argparse
 from datetime import datetime
 
 def get_vector_embedding(text, model="llama3"):
     """Get vector embedding from Ollama"""
     if not text or len(text.strip()) == 0:
-        return None
+        return None, 0
     
     try:
+        start_time = time.time()
+        
         payload = {
             "model": model,
             "prompt": text
@@ -25,83 +27,50 @@ def get_vector_embedding(text, model="llama3"):
             json=payload
         )
         
+        processing_time = time.time() - start_time
+        
         if response.status_code == 200:
             result = response.json()
             embedding = result.get("embedding", [])
             if embedding:
-                return embedding
+                return embedding, processing_time
             else:
                 print(f"Error: Empty embedding returned")
-                return None
+                return None, processing_time
         else:
             print(f"Error getting vector embedding: {response.status_code} - {response.text}")
-            return None
+            return None, processing_time
     except Exception as e:
         print(f"Error getting vector embedding: {e}")
-        return None
+        return None, 0
 
-def estimate_tokens(text):
-    """Estimate token count for legal text"""
-    # Simple estimation: ~6-7 characters per token for English text
-    return len(text) // 6
-
-def test_embedding_with_chunk_size(text, chunk_size, chunk_overlap, model="llama3"):
-    """Test embedding generation with different chunk sizes"""
-    from langchain_text_splitters import RecursiveCharacterTextSplitter
+def test_embedding_with_chunk_size(text, chunk_size, model="llama3"):
+    """Test embedding generation with a specific chunk size"""
+    # Truncate text to chunk size
+    chunk = text[:chunk_size]
     
-    # Split text into chunks
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap,
-        length_function=len,
-        separators=["\n\n", "\n", " ", ""]
-    )
+    # Get embedding
+    embedding, processing_time = get_vector_embedding(chunk, model)
     
-    chunks = text_splitter.split_text(text)
-    
-    results = {
+    result = {
         "chunk_size": chunk_size,
-        "chunk_overlap": chunk_overlap,
-        "total_chunks": len(chunks),
-        "avg_chunk_length": sum(len(chunk) for chunk in chunks) / len(chunks) if chunks else 0,
-        "avg_estimated_tokens": sum(estimate_tokens(chunk) for chunk in chunks) / len(chunks) if chunks else 0,
-        "embedding_dimensions": 0,
-        "processing_times_ms": [],
-        "success_rate": 0
+        "chunk_length": len(chunk),
+        "word_count": len(chunk.split()),
+        "processing_time_ms": processing_time * 1000,
+        "success": embedding is not None,
+        "embedding_dimensions": len(embedding) if embedding else 0
     }
     
-    successful_embeddings = 0
-    
-    for i, chunk in enumerate(chunks):
-        print(f"Processing chunk {i+1}/{len(chunks)} (size: {len(chunk)} chars, ~{estimate_tokens(chunk)} tokens)")
-        
-        start_time = time.time()
-        embedding = get_vector_embedding(chunk, model)
-        processing_time = (time.time() - start_time) * 1000  # Convert to milliseconds
-        
-        if embedding:
-            successful_embeddings += 1
-            results["processing_times_ms"].append(processing_time)
-            
-            if results["embedding_dimensions"] == 0:
-                results["embedding_dimensions"] = len(embedding)
-        
-        # Sleep to avoid overwhelming Ollama
-        time.sleep(0.5)
-    
-    # Calculate success rate
-    results["success_rate"] = successful_embeddings / len(chunks) if chunks else 0
-    
-    # Calculate average processing time
-    results["avg_processing_time_ms"] = sum(results["processing_times_ms"]) / len(results["processing_times_ms"]) if results["processing_times_ms"] else 0
-    
-    return results
+    return result
 
 def main():
     parser = argparse.ArgumentParser(description="Test Llama3 embeddings with different chunk sizes")
     parser.add_argument("--file", help="Path to a text file to use for testing")
     parser.add_argument("--model", default="llama3", help="Ollama model to use for embeddings")
     parser.add_argument("--output", help="Path to output JSON file for results")
+    parser.add_argument("--min-size", type=int, default=500, help="Minimum chunk size to test")
+    parser.add_argument("--max-size", type=int, default=3000, help="Maximum chunk size to test")
+    parser.add_argument("--step", type=int, default=500, help="Step size between chunk sizes")
     args = parser.parse_args()
     
     # Load text
@@ -115,32 +84,48 @@ def main():
     else:
         # Default sample text
         text = """
-This is a sample text to test the Llama3 embedding model.
-It will be used to generate embeddings with different chunk sizes.
-The goal is to determine the optimal chunk size for court opinion documents.
-Court opinions often contain specialized legal terminology and citations.
-The embedding model needs to capture the semantic meaning of the text.
-Different chunk sizes may affect the quality of the embeddings.
-Smaller chunks may be more precise but may lose context.
-Larger chunks may preserve more context but may approach token limits.
-The Llama3 model has specific token limits and performance characteristics.
-Finding the right balance is crucial for effective semantic search.
+IN THE UNITED STATES DISTRICT COURT
+FOR THE DISTRICT OF COLUMBIA
+
+UNITED STATES OF AMERICA,
+Plaintiff,
+v.
+JOHN DOE,
+Defendant.
+
+MEMORANDUM OPINION
+
+This matter comes before the Court on Defendant's Motion to Dismiss. After careful consideration of the parties' submissions, the relevant legal authorities, and the entire record, the Court DENIES the motion for the reasons set forth below.
+
+I. BACKGROUND
+
+On January 1, 2025, Defendant John Doe was charged with violating 18 U.S.C. § 1343 (wire fraud) and 18 U.S.C. § 1956 (money laundering). The indictment alleges that between March 2024 and December 2024, Defendant engaged in a scheme to defraud investors by soliciting investments in a fictitious cryptocurrency platform.
+
+According to the Government, Defendant raised approximately $10 million from investors by falsely representing that their funds would be used to develop a revolutionary blockchain technology. Instead, the Government alleges that Defendant diverted a substantial portion of the funds for personal expenses, including the purchase of luxury vehicles, real estate, and travel.
+
+On February 15, 2025, Defendant filed the instant Motion to Dismiss, arguing that: (1) the indictment fails to state an offense; (2) the wire fraud statute is unconstitutionally vague as applied to cryptocurrency transactions; and (3) the Government engaged in selective prosecution.
+
+II. LEGAL STANDARD
+
+Federal Rule of Criminal Procedure 12(b)(3)(B)(v) permits a defendant to file a pretrial motion to dismiss an indictment for "failure to state an offense." To withstand a motion to dismiss, an indictment must "contain[] the elements of the offense charged and fairly inform[] a defendant of the charge against which he must defend." Hamling v. United States, 418 U.S. 87, 117 (1974). The Court must presume the allegations in the indictment to be true. United States v. Ballestas, 795 F.3d 138, 149 (D.C. Cir. 2015).
+
+A statute is unconstitutionally vague if it "fails to give ordinary people fair notice of the conduct it punishes, or [is] so standardless that it invites arbitrary enforcement." Johnson v. United States, 576 U.S. 591, 595 (2015). To establish selective prosecution, a defendant must demonstrate that the prosecution "had a discriminatory effect and that it was motivated by a discriminatory purpose." United States v. Armstrong, 517 U.S. 456, 465 (1996).
         """
     
-    print(f"Loaded text with {len(text)} characters (estimated {estimate_tokens(text)} tokens)")
+    print(f"Loaded text with {len(text)} characters")
     
     # Test different chunk sizes
-    chunk_sizes = [500, 1000, 1500, 2000, 2500]
-    chunk_overlaps = [100, 200, 300]
-    
+    chunk_sizes = list(range(args.min_size, args.max_size + args.step, args.step))
     results = []
     
     for chunk_size in chunk_sizes:
-        for chunk_overlap in chunk_overlaps:
-            print(f"\nTesting chunk size {chunk_size} with overlap {chunk_overlap}...")
-            result = test_embedding_with_chunk_size(text, chunk_size, chunk_overlap, args.model)
-            results.append(result)
-            print(f"Results: {json.dumps(result, indent=2)}")
+        print(f"\nTesting chunk size {chunk_size}...")
+        result = test_embedding_with_chunk_size(text, chunk_size, args.model)
+        results.append(result)
+        print(f"Results: {json.dumps(result, indent=2)}")
+        
+        # Sleep to avoid overwhelming Ollama
+        time.sleep(1)
     
     # Save results to file
     if args.output:
@@ -153,14 +138,10 @@ Finding the right balance is crucial for effective semantic search.
     
     # Print summary
     print("\nSummary of results:")
+    print(f"{'Chunk Size':<12} {'Success':<10} {'Dimensions':<12} {'Time (ms)':<12} {'Words':<8}")
+    print("-" * 60)
     for result in results:
-        print(f"Chunk size: {result['chunk_size']}, Overlap: {result['chunk_overlap']}")
-        print(f"  Total chunks: {result['total_chunks']}")
-        print(f"  Avg chunk length: {result['avg_chunk_length']:.1f} chars")
-        print(f"  Avg estimated tokens: {result['avg_estimated_tokens']:.1f}")
-        print(f"  Embedding dimensions: {result['embedding_dimensions']}")
-        print(f"  Avg processing time: {result['avg_processing_time_ms']:.1f} ms")
-        print(f"  Success rate: {result['success_rate'] * 100:.1f}%")
+        print(f"{result['chunk_size']:<12} {str(result['success']):<10} {result['embedding_dimensions']:<12} {result['processing_time_ms']:<12.1f} {result['word_count']:<8}")
 
 if __name__ == "__main__":
     main()
