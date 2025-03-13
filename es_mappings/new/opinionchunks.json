@@ -1,4 +1,11 @@
 {
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "index": {
+      "refresh_interval": "1s"
+    }
+  },
   "mappings": {
     "properties": {
       "id": {
@@ -11,7 +18,18 @@
         "type": "integer"
       },
       "text": {
-        "type": "text"
+        "type": "text",
+        "analyzer": "english"
+      },
+      "case_name": {
+        "type": "text",
+        "analyzer": "english",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
       },
       "vector_embedding": {
         "type": "dense_vector",
@@ -21,9 +39,6 @@
       },
       "vectorized_at": {
         "type": "date"
-      },
-      "case_name": {
-        "type": "text"
       }
     }
   }
