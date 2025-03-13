@@ -4,7 +4,7 @@ import requests
 import json
 import time
 import sys
-import uuid
+import os
 import argparse
 from datetime import datetime
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -25,40 +25,15 @@ def get_adaptive_chunk_parameters(text_length, doc_type="opinion"):
         # Default values
         return 1500, 200
 
-def get_opinions_to_chunk(batch_size=10, index_name="opinions"):
-    """Get opinions that need chunking"""
-    query = {
-        "query": {
-            "bool": {
-                "must_not": [
-                    {"exists": {"field": "chunked"}}
-                ]
-            }
-        },
-        "size": batch_size
-    }
-    
-    response = requests.post(
-        f"http://localhost:9200/{index_name}/_search",
-        json=query,
-        headers={"Content-Type": "application/json"}
-    )
-    
-    if response.status_code != 200:
-        print(f"Error getting opinions: {response.text}")
-        return []
-    
-    data = response.json()
-    return data.get("hits", {}).get("hits", [])
-
 def chunk_text_adaptive(text, doc_type="opinion"):
-    """Split text into chunks using adaptive chunk sizing"""
+    """Split text into chunks using adaptive parameters based on document length"""
     if not text or len(text.strip()) == 0:
-        return []
+        return [], 0, 0
     
-    # Get adaptive chunk size based on document length and type
+    # Determine optimal chunk parameters based on document length and type
     chunk_size, chunk_overlap = get_adaptive_chunk_parameters(len(text), doc_type)
     
+    # Create text splitter with adaptive parameters
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
@@ -66,8 +41,10 @@ def chunk_text_adaptive(text, doc_type="opinion"):
         separators=["\n\n", "\n", " ", ""]
     )
     
+    # Split text into chunks
     chunks = text_splitter.split_text(text)
-    print(f"Split text into {len(chunks)} chunks using adaptive sizing (size={chunk_size}, overlap={chunk_overlap})")
+    print(f"Split text into {len(chunks)} chunks using adaptive parameters: size={chunk_size}, overlap={chunk_overlap}")
+    
     return chunks, chunk_size, chunk_overlap
 
 def get_vector_embedding(text):
@@ -109,7 +86,46 @@ def create_opinionchunks_index():
         response = requests.head("http://localhost:9200/opinionchunks")
         if response.status_code == 404:
             print("Creating opinionchunks index...")
-            with open("es_mappings/new/opinionchunks.json", "r") as f:
+            
+            # Check if new mappings directory exists
+            if os.path.exists("es_mappings/new/opinionchunks.json"):
+                mapping_file = "es_mappings/new/opinionchunks.json"
+            else:
+                # Create mapping if it doesn't exist
+                mapping = {
+                    "mappings": {
+                        "properties": {
+                            "id": {"type": "keyword"},
+                            "opinion_id": {"type": "keyword"},
+                            "chunk_index": {"type": "integer"},
+                            "text": {"type": "text"},
+                            "case_name": {"type": "text"},
+                            "vector_embedding": {
+                                "type": "dense_vector",
+                                "dims": 4096,
+                                "index": True,
+                                "similarity": "cosine"
+                            },
+                            "vectorized_at": {"type": "date"}
+                        }
+                    }
+                }
+                
+                response = requests.put(
+                    "http://localhost:9200/opinionchunks",
+                    json=mapping,
+                    headers={"Content-Type": "application/json"}
+                )
+                
+                if response.status_code not in (200, 201):
+                    print(f"Error creating opinionchunks index: {response.text}")
+                    return False
+                
+                print("Successfully created opinionchunks index")
+                return True
+            
+            # Use existing mapping file
+            with open(mapping_file, "r") as f:
                 mapping = json.load(f)
             
             response = requests.put(
@@ -194,7 +210,6 @@ def mark_opinion_as_chunked(opinion_id, chunk_count, chunk_size=None, chunk_over
         }
     }
     
-    # Add chunking parameters if provided
     if chunk_size is not None:
         payload["doc"]["chunk_size"] = chunk_size
     
@@ -225,7 +240,7 @@ def mark_opinion_as_chunked(opinion_id, chunk_count, chunk_size=None, chunk_over
     
     return False
 
-def process_opinions(batch_size=10):
+def process_opinions():
     """Process opinions and create chunks in separate index using adaptive chunking"""
     # Create the opinionchunks index if it doesn't exist
     if not create_opinionchunks_index():
@@ -234,6 +249,7 @@ def process_opinions(batch_size=10):
     
     total_processed = 0
     failed_docs = []
+    batch_size = 10
     
     while True:
         docs = get_opinions_to_chunk(batch_size)
@@ -253,8 +269,7 @@ def process_opinions(batch_size=10):
                 mark_opinion_as_chunked(doc_id, 0)
                 continue
             
-            print(f"Chunking opinion {doc_id} with adaptive sizing")
-            # Use adaptive chunking based on document length
+            print(f"Chunking opinion {doc_id}")
             chunks, chunk_size, chunk_overlap = chunk_text_adaptive(text, "opinion")
             
             if chunks:
@@ -281,8 +296,34 @@ def process_opinions(batch_size=10):
     
     return total_processed
 
+def get_opinions_to_chunk(batch_size=10, index_name="opinions"):
+    """Get opinions that need chunking"""
+    query = {
+        "query": {
+            "bool": {
+                "must_not": [
+                    {"exists": {"field": "chunked"}}
+                ]
+            }
+        },
+        "size": batch_size
+    }
+    
+    response = requests.post(
+        f"http://localhost:9200/{index_name}/_search",
+        json=query,
+        headers={"Content-Type": "application/json"}
+    )
+    
+    if response.status_code != 200:
+        print(f"Error getting opinions: {response.text}")
+        return []
+    
+    data = response.json()
+    return data.get("hits", {}).get("hits", [])
+
 def process_single_opinion(opinion_id, index_name="opinions"):
-    """Process a single opinion by ID using adaptive chunking"""
+    """Process a single opinion by ID"""
     try:
         # Get the opinion document
         response = requests.get(f"http://localhost:9200/{index_name}/_doc/{opinion_id}")
@@ -300,8 +341,7 @@ def process_single_opinion(opinion_id, index_name="opinions"):
             mark_opinion_as_chunked(opinion_id, 0)
             return True
         
-        print(f"Chunking opinion {opinion_id} with adaptive sizing")
-        # Use adaptive chunking based on document length
+        print(f"Chunking opinion {opinion_id}")
         chunks, chunk_size, chunk_overlap = chunk_text_adaptive(text, "opinion")
         
         if chunks:
@@ -322,14 +362,13 @@ def process_single_opinion(opinion_id, index_name="opinions"):
         print(f"Error processing opinion {opinion_id}: {e}")
         return False
 
-def main():
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process opinions and create chunks in separate index using adaptive chunking")
     parser.add_argument("--opinion-id", help="Process a single opinion by ID")
     parser.add_argument("--batch-size", type=int, default=10, help="Batch size for processing opinions")
-    parser.add_argument("--force", action="store_true", help="Force reprocessing of already chunked opinions")
     args = parser.parse_args()
     
-    print("Starting opinion chunking process with adaptive sizing")
+    print("Starting opinion chunking process with adaptive chunking")
     
     # Check if Elasticsearch is running
     try:
@@ -361,8 +400,5 @@ def main():
             print(f"Failed to process opinion {args.opinion_id}")
     else:
         # Process all opinions
-        total_processed = process_opinions(args.batch_size)
+        total_processed = process_opinions()
         print(f"Chunking complete. Total opinions processed: {total_processed}")
-
-if __name__ == "__main__":
-    main()
