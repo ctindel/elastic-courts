@@ -1,26 +1,20 @@
-# Adaptive Chunking for Court Opinions
-
-This document describes the adaptive chunking strategy implemented for processing court opinion documents.
+# Adaptive Chunking for Court Documents
 
 ## Overview
 
-Adaptive chunking dynamically adjusts chunk size and overlap based on document characteristics, optimizing for both search quality and processing efficiency. This approach recognizes that different documents have different optimal chunking parameters.
+This document describes the implementation of an adaptive chunking strategy for court opinion documents. The strategy dynamically adjusts chunk parameters based on document characteristics to optimize both search quality and processing efficiency.
 
 ## Adaptive Chunking Strategy
 
-The adaptive chunking implementation adjusts chunk parameters based on document length:
+The adaptive chunking strategy is based on the research findings documented in `docs/optimal_chunk_sizes.md`. The key insight is that different document lengths benefit from different chunking parameters:
 
-| Document Length | Chunk Size | Chunk Overlap | Rationale |
-|-----------------|------------|---------------|-----------|
-| Small (<10K chars) | 1000 chars | 100 chars | Smaller documents benefit from more precise chunks |
-| Medium (10K-50K chars) | 1500 chars | 200 chars | Balanced approach for typical opinions |
-| Large (>50K chars) | 2000 chars | 200 chars | Larger documents need more context preservation |
+- **Short Documents (<10K chars)**: Benefit from smaller chunks (1000 chars) with less overlap (100 chars)
+- **Medium Documents (10K-50K chars)**: Optimal with medium chunks (1500 chars) and standard overlap (200 chars)
+- **Long Documents (>50K chars)**: Require larger chunks (2000 chars) with more overlap (200-300 chars)
 
-## Implementation Details
+## Implementation
 
-The adaptive chunking logic is implemented in `opinion_chunker_adaptive.py` with the following key components:
-
-### 1. Adaptive Parameter Selection
+The adaptive chunking strategy is implemented in `scripts/opinion_chunker_adaptive.py`. The core function that determines the optimal chunk parameters is:
 
 ```python
 def get_adaptive_chunk_parameters(text_length, doc_type="opinion"):
@@ -40,31 +34,21 @@ def get_adaptive_chunk_parameters(text_length, doc_type="opinion"):
         return 1500, 200
 ```
 
-### 2. Adaptive Chunking Function
+This function is called by `chunk_text_adaptive()` which then uses the LangChain `RecursiveCharacterTextSplitter` to split the text into chunks with the optimal parameters.
 
-```python
-def chunk_text_adaptive(text, doc_type="opinion"):
-    """Split text into chunks using adaptive chunk sizing"""
-    if not text or len(text.strip()) == 0:
-        return []
-    
-    # Get adaptive chunk size based on document length and type
-    chunk_size, chunk_overlap = get_adaptive_chunk_parameters(len(text), doc_type)
-    
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap,
-        length_function=len,
-        separators=["\n\n", "\n", " ", ""]
-    )
-    
-    chunks = text_splitter.split_text(text)
-    return chunks
-```
+## Benefits
 
-### 3. Metadata Tracking
+The adaptive chunking strategy provides several benefits:
 
-The system stores the chunking parameters used for each document in Elasticsearch:
+1. **Improved Search Quality**: By using optimal chunk sizes for different document types, search quality is improved across the board.
+2. **Processing Efficiency**: Smaller documents use smaller chunks, reducing processing overhead.
+3. **Storage Optimization**: Larger documents use larger chunks, reducing the total number of chunks stored.
+4. **Context Preservation**: Chunk sizes are optimized to preserve semantic context while staying within token limits.
+5. **Query Performance**: Different query types perform better with different chunk sizes, and the adaptive strategy balances these needs.
+
+## Metadata Tracking
+
+The implementation also tracks the chunk parameters used for each document, storing them in Elasticsearch for analysis:
 
 ```python
 def mark_opinion_as_chunked(opinion_id, chunk_count, chunk_size=None, chunk_overlap=None, index_name="opinions"):
@@ -77,38 +61,33 @@ def mark_opinion_as_chunked(opinion_id, chunk_count, chunk_size=None, chunk_over
         }
     }
     
-    # Add chunking parameters if provided
     if chunk_size is not None:
         payload["doc"]["chunk_size"] = chunk_size
     
     if chunk_overlap is not None:
         payload["doc"]["chunk_overlap"] = chunk_overlap
     
-    # Update document in Elasticsearch
-    # ...
+    # ... rest of function ...
 ```
 
-## Benefits of Adaptive Chunking
-
-1. **Improved Search Quality**: Optimizes chunk size based on document characteristics
-2. **Better Resource Utilization**: Reduces unnecessary chunks for small documents
-3. **Enhanced Context Preservation**: Uses larger chunks for longer documents
-4. **Consistent Reference Tracking**: Maintains parent-child relationships between documents and chunks
-5. **Metadata Transparency**: Records chunking parameters for reproducibility and analysis
+This metadata can be used to analyze the distribution of chunk sizes across the corpus and refine the chunking strategy over time.
 
 ## Usage
 
+To use the adaptive chunking implementation, run:
+
 ```bash
-# Process a single opinion with adaptive chunking
-python3 scripts/opinion_chunker_adaptive.py --opinion-id <opinion_id>
+./run_opinion_chunker_adaptive.sh
+```
 
-# Process all opinions with adaptive chunking
-python3 scripts/opinion_chunker_adaptive.py
+This script will process all opinions in the Elasticsearch index that haven't been chunked yet, using the adaptive chunking strategy.
 
-# Force reprocessing of already chunked opinions
-python3 scripts/opinion_chunker_adaptive.py --force
+To process a single opinion, run:
+
+```bash
+./run_opinion_chunker_adaptive.sh --opinion-id <opinion_id>
 ```
 
 ## Conclusion
 
-Adaptive chunking provides a more intelligent approach to document processing that adjusts to the specific characteristics of each document. This results in better search quality, more efficient processing, and improved context preservation across different document types and sizes.
+The adaptive chunking strategy provides an optimal balance between search quality, processing efficiency, and storage requirements. By dynamically adjusting chunk parameters based on document characteristics, we ensure that each document is processed with the optimal parameters for its specific needs.

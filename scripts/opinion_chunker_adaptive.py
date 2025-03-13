@@ -100,6 +100,8 @@ def create_opinionchunks_index():
                             "chunk_index": {"type": "integer"},
                             "text": {"type": "text"},
                             "case_name": {"type": "text"},
+                            "chunk_size": {"type": "integer"},
+                            "chunk_overlap": {"type": "integer"},
                             "vector_embedding": {
                                 "type": "dense_vector",
                                 "dims": 4096,
@@ -144,7 +146,7 @@ def create_opinionchunks_index():
         print(f"Error checking/creating opinionchunks index: {e}")
         return False
 
-def index_opinion_chunks(opinion_id, case_name, chunks):
+def index_opinion_chunks(opinion_id, case_name, chunks, chunk_size=None, chunk_overlap=None):
     """Index opinion chunks in the opinionchunks index"""
     if not chunks:
         return True
@@ -169,6 +171,12 @@ def index_opinion_chunks(opinion_id, case_name, chunks):
             "case_name": case_name,
             "vectorized_at": datetime.now().isoformat()
         }
+        
+        if chunk_size is not None:
+            chunk_doc["chunk_size"] = chunk_size
+        
+        if chunk_overlap is not None:
+            chunk_doc["chunk_overlap"] = chunk_overlap
         
         if embedding:
             chunk_doc["vector_embedding"] = embedding
@@ -240,62 +248,6 @@ def mark_opinion_as_chunked(opinion_id, chunk_count, chunk_size=None, chunk_over
     
     return False
 
-def process_opinions():
-    """Process opinions and create chunks in separate index using adaptive chunking"""
-    # Create the opinionchunks index if it doesn't exist
-    if not create_opinionchunks_index():
-        print("Failed to create opinionchunks index")
-        return 0
-    
-    total_processed = 0
-    failed_docs = []
-    batch_size = 10
-    
-    while True:
-        docs = get_opinions_to_chunk(batch_size)
-        if not docs:
-            print(f"No more opinions to chunk. Total processed: {total_processed}")
-            break
-        
-        print(f"Processing batch of {len(docs)} opinions")
-        for doc in docs:
-            doc_id = doc["_id"]
-            source = doc["_source"]
-            text = source.get("plain_text", "")
-            case_name = source.get("case_name", "Unknown Case")
-            
-            if not text:
-                print(f"No text to chunk for opinion {doc_id}")
-                mark_opinion_as_chunked(doc_id, 0)
-                continue
-            
-            print(f"Chunking opinion {doc_id}")
-            chunks, chunk_size, chunk_overlap = chunk_text_adaptive(text, "opinion")
-            
-            if chunks:
-                success = index_opinion_chunks(doc_id, case_name, chunks)
-                if success:
-                    if mark_opinion_as_chunked(doc_id, len(chunks), chunk_size, chunk_overlap):
-                        total_processed += 1
-                        print(f"Successfully chunked opinion {doc_id} into {len(chunks)} chunks")
-                    else:
-                        print(f"Failed to mark opinion {doc_id} as chunked")
-                        failed_docs.append(doc_id)
-                else:
-                    print(f"Failed to index chunks for opinion {doc_id}")
-                    failed_docs.append(doc_id)
-            
-            # Sleep to avoid overwhelming Elasticsearch
-            time.sleep(0.5)
-        
-        # Sleep between batches
-        time.sleep(1)
-    
-    if failed_docs:
-        print(f"Failed to process {len(failed_docs)} documents: {failed_docs}")
-    
-    return total_processed
-
 def get_opinions_to_chunk(batch_size=10, index_name="opinions"):
     """Get opinions that need chunking"""
     query = {
@@ -322,6 +274,61 @@ def get_opinions_to_chunk(batch_size=10, index_name="opinions"):
     data = response.json()
     return data.get("hits", {}).get("hits", [])
 
+def process_opinions(batch_size=10):
+    """Process opinions and create chunks in separate index using adaptive chunking"""
+    # Create the opinionchunks index if it doesn't exist
+    if not create_opinionchunks_index():
+        print("Failed to create opinionchunks index")
+        return 0
+    
+    total_processed = 0
+    failed_docs = []
+    
+    while True:
+        docs = get_opinions_to_chunk(batch_size)
+        if not docs:
+            print(f"No more opinions to chunk. Total processed: {total_processed}")
+            break
+        
+        print(f"Processing batch of {len(docs)} opinions")
+        for doc in docs:
+            doc_id = doc["_id"]
+            source = doc["_source"]
+            text = source.get("plain_text", "")
+            case_name = source.get("case_name", "Unknown Case")
+            
+            if not text:
+                print(f"No text to chunk for opinion {doc_id}")
+                mark_opinion_as_chunked(doc_id, 0)
+                continue
+            
+            print(f"Chunking opinion {doc_id}")
+            chunks, chunk_size, chunk_overlap = chunk_text_adaptive(text, "opinion")
+            
+            if chunks:
+                success = index_opinion_chunks(doc_id, case_name, chunks, chunk_size, chunk_overlap)
+                if success:
+                    if mark_opinion_as_chunked(doc_id, len(chunks), chunk_size, chunk_overlap):
+                        total_processed += 1
+                        print(f"Successfully chunked opinion {doc_id} into {len(chunks)} chunks")
+                    else:
+                        print(f"Failed to mark opinion {doc_id} as chunked")
+                        failed_docs.append(doc_id)
+                else:
+                    print(f"Failed to index chunks for opinion {doc_id}")
+                    failed_docs.append(doc_id)
+            
+            # Sleep to avoid overwhelming Elasticsearch
+            time.sleep(0.5)
+        
+        # Sleep between batches
+        time.sleep(1)
+    
+    if failed_docs:
+        print(f"Failed to process {len(failed_docs)} documents: {failed_docs}")
+    
+    return total_processed
+
 def process_single_opinion(opinion_id, index_name="opinions"):
     """Process a single opinion by ID"""
     try:
@@ -345,7 +352,7 @@ def process_single_opinion(opinion_id, index_name="opinions"):
         chunks, chunk_size, chunk_overlap = chunk_text_adaptive(text, "opinion")
         
         if chunks:
-            success = index_opinion_chunks(opinion_id, case_name, chunks)
+            success = index_opinion_chunks(opinion_id, case_name, chunks, chunk_size, chunk_overlap)
             if success:
                 if mark_opinion_as_chunked(opinion_id, len(chunks), chunk_size, chunk_overlap):
                     print(f"Successfully chunked opinion {opinion_id} into {len(chunks)} chunks")
@@ -400,5 +407,5 @@ if __name__ == "__main__":
             print(f"Failed to process opinion {args.opinion_id}")
     else:
         # Process all opinions
-        total_processed = process_opinions()
+        total_processed = process_opinions(args.batch_size)
         print(f"Chunking complete. Total opinions processed: {total_processed}")

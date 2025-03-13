@@ -1,28 +1,27 @@
 #!/bin/bash
 
-# Script to run the adaptive opinion chunker consumer
+# Script to run the adaptive opinion chunker
 
 # Set the base directory
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$BASE_DIR"
 
+# Check if Python is installed
+if ! command -v python3 &> /dev/null; then
+    echo "Error: Python 3 is not installed"
+    exit 1
+fi
+
 # Check if required packages are installed
-if ! python3 -m pip freeze | grep -q "kafka-python"; then
+if ! python3 -c "import requests, langchain_text_splitters" &> /dev/null; then
     echo "Installing required packages..."
-    pip install kafka-python requests langchain-text-splitters
+    pip install requests langchain-text-splitters
 fi
 
 # Check if Elasticsearch is running
 echo "Checking if Elasticsearch is running..."
 if ! curl -s "http://localhost:9200" > /dev/null; then
     echo "Error: Elasticsearch is not running. Please start it with docker-compose-up.sh"
-    exit 1
-fi
-
-# Check if Kafka is running
-echo "Checking if Kafka is running..."
-if ! nc -z localhost 9092; then
-    echo "Error: Kafka is not running. Please start it with docker-compose-up.sh"
     exit 1
 fi
 
@@ -33,6 +32,6 @@ if ! curl -s "http://localhost:11434/api/tags" > /dev/null; then
     exit 1
 fi
 
-# Run the adaptive opinion chunker consumer
-echo "Starting adaptive opinion chunker consumer..."
-python3 scripts/kafka/opinion_chunker_adaptive_consumer.py "$@"
+# Run the adaptive opinion chunker
+echo "Starting adaptive opinion chunker..."
+python3 scripts/opinion_chunker_adaptive.py "$@"
