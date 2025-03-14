@@ -4,7 +4,15 @@
       "id": { "type": "keyword" },
       "full_name": { "type": "text" },
       "citation_string": { "type": "keyword" },
-      "url": { "type": "keyword" }
+      "url": { "type": "keyword" },
+      "text_for_vectorization": { "type": "text" },
+      "vectorize": { "type": "boolean" },
+      "vector_embedding": {
+        "type": "dense_vector",
+        "dims": 4096,
+        "index": true,
+        "similarity": "cosine"
+      }
     }
   }
 }

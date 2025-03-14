@@ -9,15 +9,12 @@ def get_embedding(text):
     """Get embedding from Ollama"""
     payload = {
         "model": "llama3",
-        "prompt": text,
-        "options": {
-            "embedding": True
-        }
+        "prompt": text
     }
     
     try:
         response = requests.post(
-            "http://localhost:11434/api/generate",
+            "http://localhost:11434/api/embeddings",
             json=payload,
             headers={"Content-Type": "application/json"}
         )

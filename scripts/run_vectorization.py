@@ -74,14 +74,11 @@ def vectorize_text(text):
     try:
         payload = {
             "model": "llama3",
-            "prompt": text,
-            "options": {
-                "embedding": True
-            }
+            "prompt": text
         }
         
         response = requests.post(
-            "http://localhost:11434/api/generate",
+            "http://localhost:11434/api/embeddings",
             headers={"Content-Type": "application/json"},
             json=payload
         )

@@ -25,7 +25,7 @@ logger = logging.getLogger("direct_ingestion")
 
 # Constants
 ELASTICSEARCH_URL = "http://localhost:9200"
-OLLAMA_URL = "http://localhost:11434/api/generate"
+OLLAMA_URL = "http://localhost:11434/api/embeddings"
 BATCH_SIZE = 1000
 MAX_WORKERS = 4
 
@@ -69,10 +69,7 @@ def get_vector_embedding(text):
     try:
         payload = {
             "model": "llama3",
-            "prompt": text,
-            "options": {
-                "embedding": True
-            }
+            "prompt": text
         }
         
         response = requests.post(
