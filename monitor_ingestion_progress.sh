@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Script to monitor the ingestion progress with detailed statistics
-
 # Set the base directory
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$BASE_DIR"
@@ -69,35 +68,7 @@ get_counts() {
       "size": 0
     }' | jq -r '.hits.total.value')
     
-    # Get chunk statistics
-    CHUNK_STATS=$(curl -s -X GET "http://localhost:9200/opinions/_search" -H 'Content-Type: application/json' -d'
-    {
-      "size": 0,
-      "aggs": {
-        "avg_chunk_count": {
-          "avg": {
-            "field": "chunk_count"
-          }
-        },
-        "max_chunk_count": {
-          "max": {
-            "field": "chunk_count"
-          }
-        },
-        "avg_chunk_size": {
-          "avg": {
-            "field": "chunk_size"
-          }
-        }
-      }
-    }')
-    
-    # Extract statistics
-    AVG_CHUNK_COUNT=$(echo $CHUNK_STATS | jq -r '.aggregations.avg_chunk_count.value')
-    MAX_CHUNK_COUNT=$(echo $CHUNK_STATS | jq -r '.aggregations.max_chunk_count.value')
-    AVG_CHUNK_SIZE=$(echo $CHUNK_STATS | jq -r '.aggregations.avg_chunk_size.value')
-    
-    # Calculate percentages
+    # Calculate percentages and rates
     if [ "$OPINION_COUNT" -gt 0 ]; then
         CHUNKED_PERCENT=$(echo "scale=2; $CHUNKED_COUNT * 100 / $OPINION_COUNT" | bc)
     else
@@ -123,21 +94,6 @@ get_counts() {
         VECTORIZED_RATE="N/A"
     fi
     
-    # Get error statistics from log file
-    if [ -f "opinion_chunker_robust.log" ]; then
-        ERROR_COUNT=$(grep -c "ERROR" opinion_chunker_robust.log)
-        WARNING_COUNT=$(grep -c "WARNING" opinion_chunker_robust.log)
-        EMPTY_TEXT_COUNT=$(grep -c "No text to chunk" opinion_chunker_robust.log)
-        SHORT_TEXT_COUNT=$(grep -c "Text too short for chunking" opinion_chunker_robust.log)
-        SKIPPED_ROW_COUNT=$(grep -c "Skipping row" opinion_chunker_robust.log)
-    else
-        ERROR_COUNT="N/A"
-        WARNING_COUNT="N/A"
-        EMPTY_TEXT_COUNT="N/A"
-        SHORT_TEXT_COUNT="N/A"
-        SKIPPED_ROW_COUNT="N/A"
-    fi
-    
     # Store current values for next iteration
     PREV_OPINION_COUNT=$OPINION_COUNT
     PREV_CHUNKED_COUNT=$CHUNKED_COUNT
@@ -157,18 +113,6 @@ get_counts() {
     echo "Documents Chunked: $CHUNKED_RATE"
     echo "Chunks Created: $CHUNK_RATE"
     echo "Chunks Vectorized: $VECTORIZED_RATE"
-    echo ""
-    echo "Chunking Statistics:"
-    echo "Average Chunks per Document: $AVG_CHUNK_COUNT"
-    echo "Maximum Chunks per Document: $MAX_CHUNK_COUNT"
-    echo "Average Chunk Size: $AVG_CHUNK_SIZE characters"
-    echo ""
-    echo "Error Statistics:"
-    echo "Error Count: $ERROR_COUNT"
-    echo "Warning Count: $WARNING_COUNT"
-    echo "Empty Text Count: $EMPTY_TEXT_COUNT"
-    echo "Short Text Count: $SHORT_TEXT_COUNT"
-    echo "Skipped Row Count: $SKIPPED_ROW_COUNT"
     echo "----------------------------------------"
 }
 
