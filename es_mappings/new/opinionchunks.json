@@ -1,0 +1,23 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {"type": "keyword"},
+      "opinion_id": {"type": "keyword"},
+      "chunk_index": {"type": "integer"},
+      "text": {"type": "text", "analyzer": "english"},
+      "case_name": {
+        "type": "text",
+        "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}
+      },
+      "chunk_size": {"type": "integer"},
+      "chunk_overlap": {"type": "integer"},
+      "vectorized_at": {"type": "date"},
+      "vector_embedding": {
+        "type": "dense_vector",
+        "dims": 4096,
+        "index": true,
+        "similarity": "cosine"
+      }
+    }
+  }
+}
