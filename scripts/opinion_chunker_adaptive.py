@@ -298,8 +298,10 @@ def process_opinions(batch_size=10):
             case_name = source.get("case_name", "Unknown Case")
             
             if not text:
-                print(f"No text to chunk for opinion {doc_id}")
+                print(f"Empty text content for opinion {doc_id}, using empty string")
+                text = ""
                 mark_opinion_as_chunked(doc_id, 0)
+                total_processed += 1
                 continue
             
             print(f"Chunking opinion {doc_id}")
@@ -344,7 +346,8 @@ def process_single_opinion(opinion_id, index_name="opinions"):
         case_name = source.get("case_name", "Unknown Case")
         
         if not text:
-            print(f"No text to chunk for opinion {opinion_id}")
+            print(f"Empty text content for opinion {opinion_id}, using empty string")
+            text = ""
             mark_opinion_as_chunked(opinion_id, 0)
             return True
         
